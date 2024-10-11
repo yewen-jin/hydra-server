@@ -1,33 +1,193 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>&lt; hydra &gt;</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta property="og:title" content="HYDRA">
-  <meta property="og:description" content="live coding networked visuals in the browser">
-  <meta property="og:image" content="https://cdn.glitch.com/9c3a06ab-0731-42ca-a1a3-3a249825d08f%2FScreen%20Shot%202018-06-24%20at%204.47.49%20PM.png?1531889983803">
-  <meta property="og:url" content="https://hydra.ojack.xyz">
-  <meta name="twitter:title" content="HYDRA">
- <meta name="twitter:description" content="live coding networked visuals in the browser">
- <meta name="twitter:image" content="https://cdn.glitch.com/9c3a06ab-0731-42ca-a1a3-3a249825d08f%2FScreen%20Shot%202018-06-24%20at%204.47.49%20PM.png?1531889983803">
- <meta name="twitter:card" content="summary_large_image">
- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js" defer></script>
- <script src="https://unpkg.com/hydra-synth"></script>
- <!-- <script src="./bundle.js?1.2we2ajk" defer></script>  -->
- <script src="./bundle.min.js?1.3.8?lasjl" defer></script> 
- <link href="https://fonts.googleapis.com/css?family=Chivo:300,400,700" rel="stylesheet"> 
-<link rel="stylesheet" href="./css/fontawesome.css">
-  <link rel="stylesheet" href="./css/codemirror.css">
-  <link rel="stylesheet" href="./css/tomorrow-night-eighties.css">
-  <link rel="stylesheet" href="./css/show-hint.css">
-  <link rel="stylesheet" href="./css/style.css">
-  <link rel="stylesheet" href="./css/modal.css">
-  <link rel="shortcut icon" type="image/png" href="https://cdn.glitch.com/597fe374-3d18-46a5-b99c-ceff1f8ffd79%2Ffavicon.png?1530891352785" /> 
+  <title>Hydra Visuals - Fullscreen Canvas</title>
+  <script src="https://unpkg.com/hydra-synth"></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: black;
+      height: 100%;
+      cursor: none; /* Hide cursor */
+    }
 
+    #myCanvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Fullscreen button styling */
+    #fullscreenBtn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-</body>
+  <canvas id="myCanvas"></canvas>
+  <button id="fullscreenBtn">Enter Fullscreen</button>
+  <script>
+    // Initialize Hydra with your canvas
+    const hydra = new Hydra({
+      canvas: document.getElementById('myCanvas'),
+      detectAudio: false
+    });
 
+    // Function to resize the canvas
+    function resizeCanvas() {
+      const canvas = document.getElementById('myCanvas');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      // Update Hydra resolution
+      hydra.setResolution(window.innerWidth, window.innerHeight);
+    }
+
+    // Event listener for window resize
+    window.addEventListener('resize', resizeCanvas);
+
+    // Initial canvas sizing
+    resizeCanvas();
+
+    // Enter fullscreen function
+    function enterFullscreen() {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) { /* Safari */
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) { /* IE11 */
+        elem.msRequestFullscreen();
+      }
+    }
+
+    // Event listener for the fullscreen button
+    document.getElementById('fullscreenBtn').addEventListener('click', () => {
+      enterFullscreen();
+      // Hide the button after entering fullscreen
+      document.getElementById('fullscreenBtn').style.display = 'none';
+    });
+
+    // Auto-hide cursor
+    let timeout;
+    document.addEventListener('mousemove', () => {
+      clearTimeout(timeout);
+      document.body.style.cursor = 'default';
+      timeout = setTimeout(() => {
+        document.body.style.cursor = 'none';
+      }, 2000); // Hide cursor after 2 seconds
+    });
+
+    // Your Hydra code
+
+   s0.initVideo("videos/plant1.mp4");
+   s1.initVideo("videos/plant2.mp4");
+   s2.initVideo("videos/plant3.mp4");
+   s3.initVideo("videos/plant4.mp4");
+  // s1.initImage("images/000003960011.jpg")
+ //  s0.src.playbackRate = 2; // double the speed at which the video plays
+  //s0.src.currentTime = 10; // seek to the 10th second
+  //s0.src.loop = false; // don't loop the video
+
+ /* Scene 1 */
+
+ /*
+   src(s0)
+      .scale(10)
+      .contrast(() => 0.8 + mouse.x * 0.001)
+      .brightness(-0.2)
+      .pixelate(200,400)
+      .colorama(2)
+      .saturate(0)
+      .blend(o1)
+      .out(o0)
+
+
+    //  s0.src.playbackRate = 0
+
+
+osc(20, 0.01, 1.1)
+      .kaleid(16)
+      //.color(2.83,0.91,0.39)
+      .rotate(0, 1)
+      .modulate(o1, () => mouse.y * 0.0003)
+      .scale(2.01)
+      .blend(o0)
+      .diff(o2)
+      .saturate(0)
+  	  .out(o1)
+
+    shape(4, (0.01, ()=> 0.2 + a.fft[2]),1)
+      .mult(osc(1, 1).modulate(osc(5).rotate(1.4,1), 3))
+      .color(1,2,4)
+      .saturate(0)
+      .luma(1.2,0.05, (5, ()=> 2 + a.fft[3]))
+      .scale(1.2, ()=> 0.9 + a.fft[3])
+      .blend(o0)
+      .diff(o1)// o0
+      .out(o2)// o1
+    */
+
+    /*
+voronoi(7,0.6,0.9).pixelate(80,80)
+//.diff(o1)
+  .posterize(8,1.2)
+  .shift(0.9,0.5,0.7)
+  .out(o0)
+*/
+
+ /* Scene 2 */
+//src(o0).modulate(o2).blend(shape(4),0.01).out(o0)
+//s0.initCam(1)
+//s0.src.playbackRate = 2 
+//s1.initImage("https://upload.wikimedia.org/wikipedia/commons/2/25/Hydra-Foto.jpg")
+
+src(s1)
+.modulate(o3).pixelate(400,400).posterize(18,3.2).contrast(() => Math.sin(time) * 5)
+.saturate(0)
+  .out(o0)
+
+shape(7,0.2,0.5)
+  .kaleid(3)
+  .repeatX(6,0.4)
+  .scrollY(0.8)
+ // .rotate(10,1)
+ // .modulate(osc().rotate(() => time%360))
+  .out(o1)
+
+noise(2, 0.5)
+  .invert([0.1,0.9])
+  .contrast(() => Math.sin(time) * 5)
+  .thresh(1.5,0.08)
+  .colorama(0.7)
+ // .modulate(o2)
+ // .modulateRotate(o3)
+
+  .out(o2)
+
+gradient([0.1,2,40])
+  .saturate( () => Math.sin(time) )
+//osc(60, 0.1, 0)
+  .diff(o1)
+  .saturate(9)
+  .modulate(o2)
+  .out(o3)
+
+      render(o0) 
+    
+    
+      
+  </script>
+</body>
 </html>
