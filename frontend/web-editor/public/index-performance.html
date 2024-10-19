@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hydra Visuals - Fullscreen Canvas</title>
+  <script src="https://unpkg.com/hydra-synth"></script>
+  <!-- CodeMirror CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+  <!-- Optional: CodeMirror Theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: black;
+      height: 100%;
+      cursor: none; /* Hide cursor */
+    }
+
+    #myCanvas {
+
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 00px;
+      width: auto;
+      height: 100vh;
+    }
+
+    /* Fullscreen button styling */
+    #fullscreenBtn {
+      opacity:0;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Position the code editor */
+    .CodeMirror {
+ 
+      top: 0;
+      left: 0;
+      width: 400px; /* Adjust the width as needed */
+      height: 100vh;
+      z-index: 1000;
+    }
+
+    /* Hide the code editor on the audience display */
+/* Show the code editor only on screens less than 1024px */
+
+
+/* @media screen and (min-width: 1024px) {
+  .CodeMirror {
+    display: none;
+  } */
+}
+
+    }
+  </style>
+</head>
+<body>
+  <canvas id="myCanvas"></canvas>
+  <button id="fullscreenBtn">Enter Fullscreen</button>
+  <!-- Code editor container -->
+  <textarea id="codeEditor"></textarea>
+  <!-- CodeMirror JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+  <!-- CodeMirror JavaScript Mode -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+  <!-- Include your external JavaScript file here -->
+  <script src="hydraCode.js"></script>
+</body>
+</html>
