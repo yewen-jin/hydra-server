@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <title>Hydra Visuals - Fullscreen Canvas</title>
   <script src="https://unpkg.com/hydra-synth"></script>
-      <!-- Include CodeMirror CSS -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
-      <!-- Optional: Include a theme -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+  <!-- Include CodeMirror CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+  <!-- Optional: Include a theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+
   <style>
     body, html {
       margin: 0;
@@ -51,27 +52,25 @@
   /* Hide the code editor from the audience display */
   @media screen and (min-width: 1024px) {
     #codeEditor {
-      display: none; 
-      /* Hide on larger screens (e.g., the projector) */
+      display: none; /* Hide on larger screens (e.g., the projector) */
     }
   }
   </style>
 </head>
 <body>
-    <!-- Code editor container -->
-    <textarea id="codeEditor"></textarea>
+
   <canvas id="myCanvas"></canvas>
   <button id="fullscreenBtn">Enter Fullscreen</button>
-  
-
-
-    <!-- Include CodeMirror JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
-
+    <!-- Code editor container -->
+   <textarea id="codeEditor"></textarea>
 
   <!-- Include your external JavaScript file here -->
-  <script src="hydraCode.js"></script>
+  <script src="hydraCode-separate-js.js"></script>
+
+    <!-- Include CodeMirror JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
   <!-- Include JavaScript mode -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+
 </body>
 </html>
