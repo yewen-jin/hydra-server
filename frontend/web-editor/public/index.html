@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <title>Hydra Visuals - Fullscreen Canvas</title>
   <script src="https://unpkg.com/hydra-synth"></script>
-      <!-- Include CodeMirror CSS -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
-      <!-- Optional: Include a theme -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+  <!-- CodeMirror CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+  <!-- Optional: CodeMirror Theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
   <style>
     body, html {
       margin: 0;
@@ -29,7 +29,6 @@
 
     /* Fullscreen button styling */
     #fullscreenBtn {
-      opacity: 0;
       position: absolute;
       top: 10px;
       right: 10px;
@@ -38,40 +37,44 @@
       font-size: 16px;
       cursor: pointer;
     }
-      /* Position the code editor */
-  #codeEditor {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 400px; /* Adjust as needed */
-    height: 100vh;
-    z-index: 1000;
-  }
 
-  /* Hide the code editor from the audience display */
-  @media screen and (min-width: 1024px) {
+    /* Position the code editor */
     #codeEditor {
-      display: none; 
-      /* Hide on larger screens (e.g., the projector) */
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 400px; /* Adjust the width as needed */
+      height: 100vh;
+      z-index: 1000;
     }
+
+    /* Hide the code editor on the audience display */
+/* Show the code editor only on screens less than 1024px */
+@media screen and (max-width: 1024px) {
+  .CodeMirror {
+    display: block;
   }
+}
+
+@media screen and (min-width: 1024px) {
+  .CodeMirror {
+    display: none;
+  }
+}
+
+    }
   </style>
 </head>
 <body>
-    <!-- Code editor container -->
-    <textarea id="codeEditor"></textarea>
   <canvas id="myCanvas"></canvas>
   <button id="fullscreenBtn">Enter Fullscreen</button>
-  
-
-
-    <!-- Include CodeMirror JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
-
-
+  <!-- Code editor container -->
+  <textarea id="codeEditor"></textarea>
+  <!-- CodeMirror JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+  <!-- CodeMirror JavaScript Mode -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
   <!-- Include your external JavaScript file here -->
   <script src="hydraCode.js"></script>
-  <!-- Include JavaScript mode -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
 </body>
 </html>

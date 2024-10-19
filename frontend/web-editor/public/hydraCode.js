@@ -221,6 +221,21 @@ editor.on('keydown', function(cm, event) {
   // Initial evaluation to render the initial visuals
   evaluateCode();
   
+//   function hideCodeEditor() {
+//     const editorElement = document.getElementById('codeEditor');
+//     // Adjust the width threshold as needed
+//     if (window.innerWidth >= 1024) {
+//       editorElement.style.display = 'none';
+//     } else {
+//       editorElement.style.display = 'block';
+//     }
+//   }
+  
+//   // Call the function initially
+//   hideCodeEditor();
+  
+//   // Add an event listener to handle window resize
+//   window.addEventListener('resize', hideCodeEditor);
   
 
 
