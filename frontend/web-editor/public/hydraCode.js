@@ -58,14 +58,7 @@ const hydra = new Hydra({
   
   // Set the initial code in the editor
   editor.setValue(`
-
-
-
-
-
-
-  
-    // s03.src.playbackRate = 2; // double the speed at which the video plays
+    // s0.src.playbackRate = 2; // double the speed at which the video plays
     //s0.src.currentTime = 10; // seek to the 10th second
     //s0.src.loop = false; // don't loop the video
     
@@ -76,16 +69,17 @@ const hydra = new Hydra({
   
   
   //Intermissions
-     s3.initVideo("videos/Encrypted3.mp4");
-  s3.src.playbackRate = 5;
+     s3.initVideo("videos/Encrypted1.mp4");
+//  s3.src.playbackRate = 5;
+s3.src.currentTime = 10;
   
   src(s3)
     //.scale(0.7)
       //.modulate(o3)
       //.modulateScale(o2,0.2)
-     //.pixelate(400,400)
-   //  .posterize(18,3.2)
-   //  .contrast()
+     //.pixelate(400)
+   .posterize(18,3.2)
+     .contrast(5)
   // .contrast(() => Math.sin(time) * 2 + 2)
     .saturate(0)
  .brightness(0.1)
@@ -201,10 +195,6 @@ const hydra = new Hydra({
     .out(o3)
   */
         render(o0) 
- 
-  
- 
-  
  
   `);
   
