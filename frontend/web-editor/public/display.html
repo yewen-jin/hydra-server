@@ -23,52 +23,17 @@
       width: 100vw;
       height: 100vh;
     }
-
-    #status {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: white;
-      font-family: monospace;
-      font-size: 12px;
-      z-index: 1000;
-      opacity: 0.7;
-      background: rgba(0,0,0,0.5);
-      padding: 5px 10px;
-      border-radius: 3px;
-    }
-
-    #debug {
-      position: absolute;
-      top: 40px;
-      left: 10px;
-      color: yellow;
-      font-family: monospace;
-      font-size: 10px;
-      z-index: 1000;
-      opacity: 0.8;
-      background: rgba(0,0,0,0.7);
-      padding: 5px;
-      border-radius: 3px;
-      max-width: 300px;
-    }
   </style>
 </head>
 <body>
   <canvas id="displayCanvas"></canvas>
-  <div id="status">Display Mode - Initializing...</div>
-  <div id="debug">Debug info will appear here</div>
   
   <script>
     let hydra;
     let socket;
-    let debugInfo = [];
 
     function addDebug(message) {
-      debugInfo.push(new Date().toLocaleTimeString() + ': ' + message);
-      if (debugInfo.length > 10) debugInfo.shift();
-      document.getElementById('debug').innerHTML = debugInfo.join('<br>');
-      console.log('DEBUG:', message);
+      console.log('DEBUG:', new Date().toLocaleTimeString(), '-', message);
     }
 
     // Initialize Hydra
@@ -87,7 +52,7 @@
         // Default visualization
         osc(20, 0.1, 0.8).out();
         addDebug('Hydra initialized successfully');
-        document.getElementById('status').textContent = 'Display Mode - Hydra Ready';
+        console.log('Display Mode - Hydra Ready');
       } catch (error) {
         addDebug('Hydra init error: ' + error.message);
         console.error('Hydra initialization error:', error);
@@ -110,7 +75,7 @@
 
         socket.on('room-info', (data) => {
           addDebug(`Room info: ${data.clientCount} clients connected`);
-          document.getElementById('status').textContent = `Display Mode - Connected (${data.clientCount} clients)`;
+          console.log(`Display Mode - Connected (${data.clientCount} clients)`);
         });
 
         socket.on('peer-joined', (data) => {
@@ -126,18 +91,18 @@
           try {
             // Execute the received code
             eval(data.code);
-            document.getElementById('status').textContent = 'Display Mode - Code updated';
+            console.log('Display Mode - Code updated');
             addDebug('Code executed successfully');
           } catch (error) {
             addDebug('Code execution error: ' + error.message);
             console.error('Error executing code:', error);
-            document.getElementById('status').textContent = 'Display Mode - Error in code';
+            console.log('Display Mode - Error in code');
           }
         });
 
         socket.on('disconnect', () => {
           addDebug('Socket disconnected');
-          document.getElementById('status').textContent = 'Display Mode - Disconnected';
+          console.log('Display Mode - Disconnected');
         });
 
         socket.on('connect_error', (error) => {
@@ -155,8 +120,10 @@
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
+        console.log('Entered fullscreen mode');
       } else {
         document.exitFullscreen();
+        console.log('Exited fullscreen mode');
       }
     }
 
@@ -164,10 +131,6 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'f' || e.key === 'F') {
         toggleFullscreen();
-      }
-      if (e.key === 'd' || e.key === 'D') {
-        const debug = document.getElementById('debug');
-        debug.style.display = debug.style.display === 'none' ? 'block' : 'none';
       }
     });
 
