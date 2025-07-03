@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hydra Editor</title>
+  <script src="https://unpkg.com/hydra-synth"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- CodeMirror CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      background-color: #1e1e1e;
+      color: white;
+      font-family: 'Courier New', monospace;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .editor-panel {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #444;
+    }
+
+    .preview-panel {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .toolbar {
+      background: #2d2d2d;
+      padding: 10px;
+      border-bottom: 1px solid #444;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      background: #007acc;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn:hover {
+      background: #005a9e;
+    }
+
+    .btn.danger {
+      background: #d73a49;
+    }
+
+    .btn.danger:hover {
+      background: #b52d3a;
+    }
+
+    .CodeMirror {
+      flex: 1;
+      font-size: 14px;
+      height: auto;
+    }
+
+    .CodeMirror-lines {
+      padding: 20px 0;
+    }
+
+    #previewCanvas {
+      width: 100%;
+      height: 100%;
+      background: black;
+    }
+
+    .status-bar {
+      background: #2d2d2d;
+      padding: 5px 10px;
+      font-size: 12px;
+      border-top: 1px solid #444;
+      color: #888;
+    }
+
+    .status-connected {
+      color: #28a745;
+    }
+
+    .status-error {
+      color: #dc3545;
+    }
+
+    .panel-title {
+      background: #1e1e1e;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #ccc;
+      border-bottom: 1px solid #444;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      
+      .editor-panel,
+      .preview-panel {
+        width: 100%;
+        height: 50vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Editor Panel -->
+    <div class="editor-panel">
+      <div class="panel-title">Hydra Code Editor</div>
+      <div class="toolbar">
+        <button class="btn" id="runBtn">Run (Ctrl+Enter)</button>
+        <button class="btn" id="sendBtn">Send to Display</button>
+        <button class="btn danger" id="clearBtn">Clear</button>
+        <span id="connectionStatus" class="status-bar">Connecting...</span>
+      </div>
+      <textarea id="codeEditor">// Welcome to Hydra!
+// Try modifying this code and press "Run" or Ctrl+Enter
+
+osc(20, 0.1, 0.8)
+  .color(1.5, 0.5, 0.8)
+  .rotate(0.1, 0.1)
+  .out()
+
+// More examples:
+// osc(40, 0.1, 1.2).out()
+// noise(3).out()
+// gradient(1).out()</textarea>
+      <div class="status-bar" id="statusBar">Ready</div>
+    </div>
+
+    <!-- Preview Panel -->
+    <div class="preview-panel">
+      <div class="panel-title">Preview</div>
+      <canvas id="previewCanvas"></canvas>
+    </div>
+  </div>
+
+  <!-- CodeMirror JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+
+  <script>
+    let hydra;
+    let socket;
+    let editor;
+
+    // Initialize CodeMirror
+    function initEditor() {
+      console.log('Initializing CodeMirror editor...');
+      editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+        mode: 'javascript',
+        theme: 'monokai',
+        lineNumbers: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        indentUnit: 2,
+        tabSize: 2,
+        extraKeys: {
+          'Ctrl-Enter': runCode,
+          'Cmd-Enter': runCode
+        }
+      });
+      console.log('CodeMirror editor initialized');
+    }
+
+    // Initialize Hydra for preview
+    function initHydra() {
+      console.log('Initializing Hydra...');
+      const canvas = document.getElementById('previewCanvas');
+      hydra = new Hydra({
+        canvas: canvas,
+        width: canvas.offsetWidth,
+        height: canvas.offsetHeight,
+        makeGlobal: true
+      });
+      console.log('Hydra initialized');
+    }
+
+    // Initialize Socket.IO
+    function initSocket() {
+      console.log('Initializing Socket.IO...');
+      socket = io();
+      
+      socket.on('connect', () => {
+        console.log('Socket connected:', socket.id);
+        updateConnectionStatus('Connected', 'connected');
+        
+        // Join the editor-display room as an editor client
+        console.log('Joining editor-display room...');
+        socket.emit('join-editor-display', { type: 'editor' });
+      });
+
+      socket.on('room-info', (data) => {
+        console.log('Room info received:', data);
+        updateConnectionStatus(`Connected (${data.clientCount} clients)`, 'connected');
+      });
+
+      socket.on('peer-joined', (data) => {
+        console.log('Peer joined:', data);
+        updateStatus(`${data.type} connected: ${data.id.substring(0, 8)}...`);
+      });
+
+      socket.on('peer-left', (data) => {
+        console.log('Peer left:', data);
+        updateStatus(`${data.type} disconnected`);
+      });
+
+      socket.on('disconnect', () => {
+        console.log('Socket disconnected');
+        updateConnectionStatus('Disconnected', 'error');
+      });
+
+      socket.on('connect_error', (error) => {
+        console.error('Socket connection error:', error);
+        updateConnectionStatus('Connection Error', 'error');
+      });
+
+      socket.on('error', (error) => {
+        console.error('Socket error:', error);
+        updateStatus('Socket error: ' + error, 'error');
+      });
+    }
+
+    // Run code in preview
+    function runCode() {
+      const code = editor.getValue();
+      try {
+        eval(code);
+        updateStatus('Code executed successfully');
+      } catch (error) {
+        updateStatus('Error: ' + error.message, 'error');
+        console.error('Error executing code:', error);
+      }
+    }
+
+    // Send code to display
+    function sendToDisplay() {
+      console.log('Sending code to display...');
+      const code = editor.getValue();
+      console.log('Code to send:', code);
+      
+      if (socket && socket.connected) {
+        socket.emit('update-code', { code: code });
+        updateStatus('Code sent to display');
+        console.log('Code sent successfully');
+      } else {
+        console.error('Socket not connected:', socket ? socket.connected : 'socket is null');
+        updateStatus('Not connected to server', 'error');
+      }
+    }
+
+    // Clear canvas
+    function clearCanvas() {
+      try {
+        solid(0, 0, 0, 1).out();
+        updateStatus('Canvas cleared');
+      } catch (error) {
+        updateStatus('Error clearing canvas', 'error');
+      }
+    }
+
+    // Update status bar
+    function updateStatus(message, type = '') {
+      const statusBar = document.getElementById('statusBar');
+      statusBar.textContent = message;
+      statusBar.className = 'status-bar' + (type ? ' status-' + type : '');
+    }
+
+    // Update connection status
+    function updateConnectionStatus(message, type = '') {
+      const connectionStatus = document.getElementById('connectionStatus');
+      connectionStatus.textContent = message;
+      connectionStatus.className = 'status-bar' + (type ? ' status-' + type : '');
+    }
+
+    // Event listeners
+    document.getElementById('runBtn').addEventListener('click', runCode);
+    document.getElementById('sendBtn').addEventListener('click', sendToDisplay);
+    document.getElementById('clearBtn').addEventListener('click', clearCanvas);
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      if (hydra) {
+        const canvas = document.getElementById('previewCanvas');
+        hydra.setResolution(canvas.offsetWidth, canvas.offsetHeight);
+      }
+      if (editor) {
+        editor.refresh();
+      }
+    });
+
+    // Initialize everything when page loads
+    window.addEventListener('load', () => {
+      console.log('Page loaded, starting initialization...');
+      initEditor();
+      initHydra();
+      initSocket();
+      
+      // Run initial code
+      setTimeout(() => {
+        console.log('Running initial code...');
+        runCode();
+      }, 500);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hydra Display</title>
+  <script src="https://unpkg.com/hydra-synth"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: black;
+      height: 100%;
+      cursor: none;
+    }
+
+    #displayCanvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #status {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-family: monospace;
+      font-size: 12px;
+      z-index: 1000;
+      opacity: 0.7;
+      background: rgba(0,0,0,0.5);
+      padding: 5px 10px;
+      border-radius: 3px;
+    }
+
+    #debug {
+      position: absolute;
+      top: 40px;
+      left: 10px;
+      color: yellow;
+      font-family: monospace;
+      font-size: 10px;
+      z-index: 1000;
+      opacity: 0.8;
+      background: rgba(0,0,0,0.7);
+      padding: 5px;
+      border-radius: 3px;
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="displayCanvas"></canvas>
+  <div id="status">Display Mode - Initializing...</div>
+  <div id="debug">Debug info will appear here</div>
+  
+  <script>
+    let hydra;
+    let socket;
+    let debugInfo = [];
+
+    function addDebug(message) {
+      debugInfo.push(new Date().toLocaleTimeString() + ': ' + message);
+      if (debugInfo.length > 10) debugInfo.shift();
+      document.getElementById('debug').innerHTML = debugInfo.join('<br>');
+      console.log('DEBUG:', message);
+    }
+
+    // Initialize Hydra
+    function initHydra() {
+      try {
+        const canvas = document.getElementById('displayCanvas');
+        addDebug('Initializing Hydra...');
+        
+        hydra = new Hydra({
+          canvas: canvas,
+          width: window.innerWidth,
+          height: window.innerHeight,
+          makeGlobal: true
+        });
+        
+        // Default visualization
+        osc(20, 0.1, 0.8).out();
+        addDebug('Hydra initialized successfully');
+        document.getElementById('status').textContent = 'Display Mode - Hydra Ready';
+      } catch (error) {
+        addDebug('Hydra init error: ' + error.message);
+        console.error('Hydra initialization error:', error);
+      }
+    }
+
+    // Initialize Socket.IO connection
+    function initSocket() {
+      try {
+        addDebug('Connecting to Socket.IO...');
+        socket = io();
+        
+        socket.on('connect', () => {
+          addDebug('Socket connected: ' + socket.id);
+          
+          // Join the editor-display room as a display client
+          socket.emit('join-editor-display', { type: 'display' });
+          addDebug('Joined editor-display room');
+        });
+
+        socket.on('room-info', (data) => {
+          addDebug(`Room info: ${data.clientCount} clients connected`);
+          document.getElementById('status').textContent = `Display Mode - Connected (${data.clientCount} clients)`;
+        });
+
+        socket.on('peer-joined', (data) => {
+          addDebug(`${data.type} joined: ${data.id.substring(0, 8)}...`);
+        });
+
+        socket.on('peer-left', (data) => {
+          addDebug(`${data.type} left: ${data.id.substring(0, 8)}...`);
+        });
+
+        socket.on('code-update', (data) => {
+          addDebug('Received code update');
+          try {
+            // Execute the received code
+            eval(data.code);
+            document.getElementById('status').textContent = 'Display Mode - Code updated';
+            addDebug('Code executed successfully');
+          } catch (error) {
+            addDebug('Code execution error: ' + error.message);
+            console.error('Error executing code:', error);
+            document.getElementById('status').textContent = 'Display Mode - Error in code';
+          }
+        });
+
+        socket.on('disconnect', () => {
+          addDebug('Socket disconnected');
+          document.getElementById('status').textContent = 'Display Mode - Disconnected';
+        });
+
+        socket.on('connect_error', (error) => {
+          addDebug('Connection error: ' + error.message);
+          console.error('Socket connection error:', error);
+        });
+
+      } catch (error) {
+        addDebug('Socket init error: ' + error.message);
+        console.error('Socket initialization error:', error);
+      }
+    }
+
+    // Handle fullscreen
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
+      }
+      if (e.key === 'd' || e.key === 'D') {
+        const debug = document.getElementById('debug');
+        debug.style.display = debug.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+
+    // Initialize everything when page loads
+    window.addEventListener('load', () => {
+      addDebug('Page loaded, initializing...');
+      initHydra();
+      initSocket();
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      if (hydra) {
+        hydra.setResolution(window.innerWidth, window.innerHeight);
+        addDebug('Window resized');
+      }
+    });
+  </script>
+</body>
+</html>
