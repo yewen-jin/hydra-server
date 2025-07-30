@@ -278,6 +278,7 @@ osc(20, 0.1, 0.8)
   <!-- CodeMirror JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/comment/comment.min.js"></script>
 
   <script>
     let hydra;
@@ -302,7 +303,9 @@ osc(20, 0.1, 0.8)
           'Shift-Ctrl-Enter': sendToDisplay,
           'Shift-Cmd-Enter': sendToDisplay,
           'Ctrl-H': toggleEditor,
-          'Cmd-H': toggleEditor
+          'Cmd-H': toggleEditor,
+          'Ctrl-/': 'toggleComment',
+          'Cmd-/': 'toggleComment'
         }
       });
       console.log('CodeMirror editor initialized');
