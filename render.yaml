@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: hydra-server
+    env: node
+    buildCommand: yarn install
+    startCommand: yarn serve
+    envVars:
+      - key: NODE_VERSION
+        value: 16
