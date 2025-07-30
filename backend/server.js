@@ -33,9 +33,10 @@ var io = require('socket.io')(server, {cors: {
 require('./mastodon-gallery.js')(app)
 
 // create a server on port 8000
-var httpsPort = process.env.HTTPS_PORT !== undefined ? process.env.HTTPS_PORT : 8000
-server.listen(httpsPort, function () {
-  console.log(`server available at http://localhost:${httpsPort}`)
+// Use Render's PORT environment variable, or HTTPS_PORT, or default to 8000
+var port = process.env.PORT || process.env.HTTPS_PORT || 8000
+server.listen(port, function () {
+  console.log(`server available at http://localhost:${port}`)
 })
 
 // Persistent room for editor/display communication
