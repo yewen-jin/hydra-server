@@ -49,10 +49,10 @@
           makeGlobal: true
         });
         
-        // Default visualization
-        osc(20, 0.1, 0.8).out();
-        addDebug('Hydra initialized successfully');
-        console.log('Display Mode - Hydra Ready');
+        // Default visualization: black screen
+        solid(0,0,0,1).out();
+        addDebug('Hydra initialized to black screen');
+        console.log('Display Mode - Hydra Ready (black screen)');
       } catch (error) {
         addDebug('Hydra init error: ' + error.message);
         console.error('Hydra initialization error:', error);
