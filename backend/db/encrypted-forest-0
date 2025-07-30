@@ -1,140 +1,138 @@
 
-    // s0.src.playbackRate = 2; // double the speed at which the video plays
-    //s0.src.currentTime = 10; // seek to the 10th second
-    //s0.src.loop = false; // don't loop the video
-    
-    s0.initVideo("videos/plant1.mp4");
-    s1.initImage("images/000003960011.jpg")
-    s2.initVideo("videos/plant3.mp4");
-   
-  
-  
-  //Intermissions
-     s3.initVideo("videos/Encrypted1.mp4");
-//  s3.src.playbackRate = 5;
 s3.src.currentTime = 10;
-  
-  src(s3)
-    //.scale(0.7)
-      //.modulate(o3)
-      //.modulateScale(o2,0.2)
-     //.pixelate(400)
-   .posterize(18,3.2)
-     .contrast(5)
+
+// --- Video/Image Source Setup ---
+
+// (Optional) Set playback rate, seek, and loop for video sources
+// s0.src.playbackRate = 2; // double the speed
+// s0.src.currentTime = 10; // seek to 10th second
+
+// s0.src.loop = false; // don't loop
+
+s0.initVideo("videos/plant1.mp4");      // Load plant video into s0
+s1.initImage("images/000003960011.jpg") // Load image into s1
+s2.initVideo("videos/plant3.mp4");      // Load another plant video into s2
+
+// --- Intermission Video ---
+s3.initVideo("videos/Encrypted1.mp4");  // Load encrypted video into s3
+// s3.src.playbackRate = 5;              // (Optional) speed up video
+s3.src.currentTime = 10;                 // Seek to 10th second
+
+// --- Scene: Encrypted Video Posterized ---
+src(s3)
+  // .scale(0.7)
+  // .modulate(o3)
+  // .modulateScale(o2,0.2)
+  // .pixelate(400)
+  .posterize(18,3.2)     // Reduce color depth
+  .contrast(5)           // Increase contrast
   // .contrast(() => Math.sin(time) * 2 + 2)
-    .saturate(0)
- .brightness(0.1)
-    .out(o0)
-  
-  
-  
-  
-     /* Scene 1 */
-  
-   
-     src(s0)
-        .scale(6)
-   //     .modulate(o3)
-    //    .scale(() => Math.sin(time/10) + 2 )
-        .contrast(() => 0.8 + mouse.x * 0.001)
-    //    .brightness(-0.2)
-   //     .pixelate(80,40)
-//.contrast(4)
-        .colorama(20)
-        .saturate(0)
-	 .posterize(20,2)
-        .blend(o1)
-   //    .out(o0)
-  
-  
-      //  s0.src.playbackRate = 0
-  
-  
-  osc(20, 0.01, 1.1)
-        .kaleid(6)
-        //.color(2.83,0.91,0.39)
-        .rotate(0, 0.1)
-        .modulate(o1, () => mouse.y * 0.0003)
-        .scale(() => Math.sin(time) + 2 )
-        .blend(o0)
-        .diff(o2)
- .posterize(8,3.2)
-        .saturate(0)
-   //     .out(o1)
-  
-      shape(3, (0.01, ()=> 0.2 + a.fft[20]),1)
-      //change within osc()
-         .mult(osc(0.11, 0.1).modulate(osc(2.8).rotate(1.4,1), 3))
-        .color(1,2,4)
-        .saturate(0)
-        .luma(1.2,0.05, (5, ()=> 2 + a.fft[3]))
-        .scale(1.2, ()=> 0.9 + a.fft[3])
-        .blend(o0)
-        .diff(o1)// o0
-        .modulate(o3)
-    //    .out(o2)// o1
-      
-  
-      
-  voronoi(9,0.6,0.9)
-  //.scale()
+  .saturate(0)           // Remove color
+  .brightness(0.1)       // Slightly brighten
+  .out(o0)               // Output to buffer o0
+
+
+// --- Scene 1: Plant Video with Color Effects ---
+
+src(s0)
+  .scale(6)                              // Zoom in
+  // .modulate(o3)
+  // .scale(() => Math.sin(time/10) + 2 )
+  .contrast(() => 0.8 + mouse.x * 0.001) // Dynamic contrast with mouse
+  // .brightness(-0.2)
+  // .pixelate(80,40)
+  // .contrast(4)
+  .colorama(20)                          // Color cycling
+  .saturate(0)                           // Remove color
+  .posterize(20,2)                       // Posterize effect
+  .blend(o1)                             // Blend with buffer o1
+  // .out(o0)
+
+// osc: animated kaleidoscopic pattern blended with o0 and o2
+osc(20, 0.01, 1.1)
+  .kaleid(6)                             // Kaleidoscope effect
+  // .color(2.83,0.91,0.39)
+  .rotate(0, 0.1)                        // Slow rotation
+  .modulate(o1, () => mouse.y * 0.0003)  // Modulate with o1 and mouse
+  .scale(() => Math.sin(time) + 2 )      // Dynamic scaling
+  .blend(o0)                             // Blend with o0
+  .diff(o2)                              // Difference with o2
+  .posterize(8,3.2)                      // Posterize
+  .saturate(0)                           // Remove color
+  // .out(o1)
+
+// shape: geometric pattern modulated and blended
+shape(3, (0.01, ()=> 0.2 + a.fft[20]),1)
+  // change within osc()
+  .mult(osc(0.11, 0.1).modulate(osc(2.8).rotate(1.4,1), 3))
+  .color(1,2,4)
+  .saturate(0)
+  .luma(1.2,0.05, (5, ()=> 2 + a.fft[3]))
+  .scale(1.2, ()=> 0.9 + a.fft[3])
+  .blend(o0)
+  .diff(o1)           // Difference with o1
+  .modulate(o3)
+  // .out(o2)
+
+// voronoi: cell pattern blended and shifted
+voronoi(9,0.6,0.9)
+  // .scale()
   .diff(o1)
-    .pixelate(800,800)
-    .posterize(18,1.2)
-    .shift(0.9,0.5,0.7)
-    .blend(o2)
-    // .saturate(0)
-  //  .out(o3)
-  
-  //  render(o2) 
-  
-  
-   /* Scene 2 */
-  
-  /*
-  
-     //s1:photo
-  src(s1)
-    .scale(1)
-     .modulate(o3)
-     .modulateScale(o2,2)
-    .pixelate(400,400)
-    .posterize(2,3.2)
-    .contrast(5)
-    .contrast(() => Math.sin(time) * 5 + 2)
-    .saturate(0)
-    .out(o0)
-  
-  shape(7,0.2,0.5)
-    .kaleid(3)
-    .repeatX(0.2, 0.6)
-    .scrollY(8)
-    .rotate(3.14/2)
-    //  .modulate(osc().rotate(() => time%360))
-    .modulateScale(osc(1, 0.2))
-    .out(o1)
-  
-  noise(2, 0.5)
+  .pixelate(800,800)
+  .posterize(18,1.2)
+  .shift(0.9,0.5,0.7)
+  .blend(o2)
+  // .saturate(0)
+  // .out(o3)
+
+// render(o2) // (uncomment to render buffer o2)
+
+
+// --- Scene 2: (Commented Out) ---
+/*
+// s1: photo
+src(s1)
+  .scale(1)
+  .modulate(o3)
+  .modulateScale(o2,2)
+  .pixelate(400,400)
+  .posterize(2,3.2)
+  .contrast(5)
+  .contrast(() => Math.sin(time) * 5 + 2)
+  .saturate(0)
+  .out(o0)
+
+shape(7,0.2,0.5)
+  .kaleid(3)
+  .repeatX(0.2, 0.6)
+  .scrollY(8)
+  .rotate(3.14/2)
+  // .modulate(osc().rotate(() => time%360))
+  .modulateScale(osc(1, 0.2))
+  .out(o1)
+
+noise(2, 0.5)
   // src(s2)
-    .invert([0.2,0.8])
-    .contrast(() => Math.sin(time) * 5)
-    .thresh(1.5,0.8)
-    .colorama(0.7)
-    .modulate(o2)
-    // .modulateRotate(o3)
-    .saturate(0)
-    .contrast(() => Math.sin(time) * 5)
-    .out(o2)
-  
-  gradient([0.1, 2, 1])
+  .invert([0.2,0.8])
+  .contrast(() => Math.sin(time) * 5)
+  .thresh(1.5,0.8)
+  .colorama(0.7)
+  .modulate(o2)
+  // .modulateRotate(o3)
+  .saturate(0)
+  .contrast(() => Math.sin(time) * 5)
+  .out(o2)
+
+gradient([0.1, 2, 1])
   // osc(60, 0.1, 0)
-    .rotate(1,0.1)
-    .saturate( () => Math.sin(time*0.1) )
-    .diff(o1)
-    .saturate(9)
-    .modulate(o2)
-    .out(o3)
-  */
-        render(o0) 
+  .rotate(1,0.1)
+  .saturate( () => Math.sin(time*0.1) )
+  .diff(o1)
+  .saturate(9)
+  .modulate(o2)
+  .out(o3)
+*/
+
+render(o0) // Final output
  
   
