@@ -259,26 +259,20 @@
     
     <div class="editor-container">
       <textarea id="codeEditor">
-        
-        
-// s3.src.currentTime = 10;
+// Write your Hydra code here // --- Video/Image Source Setup (COMMENTED OUT TO PREVENT MEMORY LEAKS) ---
+// These should only be initialized ONCE, not on every code run
+// Use the "Init Sources" button or Ctrl+I to initialize sources
 
-// --- Video/Image Source Setup ---
+// s0.initVideo("videos/plant1.mp4");      // Load plant video into s0
+// s1.initImage("images/000003960011.jpg") // Load image into s1
+// s2.initVideo("videos/plant3.mp4");      // Load another plant video into s2
+// s3.initVideo("videos/Encrypted1.mp4");  // Load encrypted video into s3
 
-// (Optional) Set playback rate, seek, and loop for video sources
-// s0.src.playbackRate = 2; // double the speed
-// s0.src.currentTime = 10; // seek to 10th second
-
-// s0.src.loop = false; // don't loop
-
-s0.initVideo("videos/plant1.mp4");      // Load plant video into s0
-s1.initImage("images/000003960011.jpg") // Load image into s1
-s2.initVideo("videos/plant3.mp4");      // Load another plant video into s2
-
-// --- Intermission Video ---
-s3.initVideo("videos/Encrypted1.mp4");  // Load encrypted video into s3
-// s3.src.playbackRate = 5;              // (Optional) speed up video
-// s3.src.currentTime = 10;                 // Seek to 10th second
+// --- Video Properties (will be set automatically after initialization) ---
+s0.src.loop = true;        // Enable looping
+s2.src.loop = true;        // Enable looping
+s3.src.loop = true;        // Enable looping
+// s3.src.currentTime = 10;   // Seek to 10th second
 
 // --- Scene: Encrypted Video Posterized ---
 src(s3)
@@ -396,9 +390,6 @@ gradient([0.1, 2, 1])
 */
 
 render(o0) // Final output
- 
-  
-
       </textarea>
     </div>
     
