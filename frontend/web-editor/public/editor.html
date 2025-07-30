@@ -16,7 +16,7 @@
       color: white;
       font-family: 'Courier New', monospace;
       height: 100vh;
-      overflow: hidden;
+      /* overflow: hidden; */
     }
 
     /* Full-screen preview canvas */
@@ -35,10 +35,12 @@
       position: fixed;
       top: 20px;
       left: 20px;
-      right: 20px;
-      width: auto;
-      max-height: calc(100vh - 40px);
-      background: transparent;
+      transform: translateX(-50%);
+      width: 1200px;         /* or any width you prefer */
+      max-width: 95vw;
+      height: 90vh;
+      max-height: calc(100vh - 80px);
+      background: rgba(68, 68, 68, 0.2);
       border: 1px solid rgba(68, 68, 68, 0.5);
       border-radius: 8px;
       z-index: 10;
@@ -259,7 +261,7 @@
       <textarea id="codeEditor">
         
         
-s3.src.currentTime = 10;
+// s3.src.currentTime = 10;
 
 // --- Video/Image Source Setup ---
 
@@ -276,7 +278,7 @@ s2.initVideo("videos/plant3.mp4");      // Load another plant video into s2
 // --- Intermission Video ---
 s3.initVideo("videos/Encrypted1.mp4");  // Load encrypted video into s3
 // s3.src.playbackRate = 5;              // (Optional) speed up video
-s3.src.currentTime = 10;                 // Seek to 10th second
+// s3.src.currentTime = 10;                 // Seek to 10th second
 
 // --- Scene: Encrypted Video Posterized ---
 src(s3)
