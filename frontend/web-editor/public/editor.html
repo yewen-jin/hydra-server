@@ -7,7 +7,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <!-- CodeMirror CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+  <link rel="stylesheet" href="./css/tomorrow-night-eighties.css">
   <style>
     body, html {
       margin: 0;
@@ -37,21 +37,21 @@
       left: 20px;
       width: 400px;
       max-height: calc(100vh - 40px);
-      background: rgba(30, 30, 30, 0.95);
-      border: 1px solid #444;
+      background: transparent;
+      border: 1px solid rgba(68, 68, 68, 0.5);
       border-radius: 8px;
       z-index: 10;
       display: flex;
       flex-direction: column;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: none;
+      box-shadow: none;
     }
 
     /* Top toolbar */
     .toolbar {
-      background: rgba(45, 45, 45, 0.9);
+      background: transparent;
       padding: 10px;
-      border-bottom: 1px solid #444;
+      border-bottom: 1px solid rgba(68, 68, 68, 0.5);
       display: flex;
       gap: 10px;
       align-items: center;
@@ -60,34 +60,35 @@
     }
 
     .btn {
-      background: #007acc;
+      background: rgba(0, 122, 204, 0.9);
       color: white;
       border: none;
-      padding: 6px 12px;
+      padding: 10px 19px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 19px;
       transition: background 0.2s;
+      backdrop-filter: blur(5px);
     }
 
     .btn:hover {
-      background: #005a9e;
+      background: rgba(0, 90, 158, 0.9);
     }
 
     .btn.danger {
-      background: #d73a49;
+      background: rgba(215, 58, 73, 0.9);
     }
 
     .btn.danger:hover {
-      background: #b52d3a;
+      background: rgba(181, 45, 58, 0.9);
     }
 
     .btn.toggle {
-      background: #28a745;
+      background: rgba(40, 167, 69, 0.9);
     }
 
     .btn.toggle:hover {
-      background: #218838;
+      background: rgba(33, 136, 56, 0.9);
     }
 
     /* Code editor container */
@@ -97,13 +98,36 @@
       flex-direction: column;
       min-height: 200px;
       max-height: 60vh;
+      margin: 5px;
     }
 
     .CodeMirror {
       flex: 1;
-      font-size: 13px;
+      font-size: 18px;
       height: auto;
-      border-radius: 0;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0) !important;
+      backdrop-filter: none;
+    }
+    
+    .CodeMirror .CodeMirror-gutters {
+      background: transparent !important;
+      border-right: none;
+    }
+    
+    .CodeMirror-focused .CodeMirror-cursor {
+      border-left: 3px solid #999;
+    }
+    
+    /* Style text spans with semi-transparent backgrounds like index.html */
+    .CodeMirror-line span {
+      background-color: rgba(0, 0, 0, 0.6);
+      transition: background-color 0.3s ease;
+    }
+    
+    /* Fix nested spans */
+    .CodeMirror-line span span {
+      background-color: rgba(0, 0, 0, 0);
     }
 
     .CodeMirror-lines {
@@ -113,11 +137,13 @@
     /* Status bar */
     .status-bar {
       background: rgba(45, 45, 45, 0.9);
-      padding: 5px 10px;
-      font-size: 11px;
-      border-top: 1px solid #444;
-      color: #888;
-      border-radius: 0 0 8px 8px;
+      padding: 8px 16px;
+      font-size: 18px;
+      border-top: 1px solid rgba(68, 68, 68, 0.5);
+      color: #ccc;
+      border-radius: 4px;
+      backdrop-filter: blur(10px);
+      margin: 2px;
     }
 
     .status-connected {
@@ -132,23 +158,25 @@
     .panel-title {
       background: rgba(30, 30, 30, 0.9);
       padding: 6px 12px;
-      font-size: 11px;
-      color: #ccc;
-      border-bottom: 1px solid #444;
+      font-size: 18px;
+      color: #fff;
+      border-bottom: 1px solid rgba(68, 68, 68, 0.5);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-radius: 8px 8px 0 0;
+      backdrop-filter: blur(10px);
     }
 
     /* Hide/show toggle */
     .editor-overlay.hidden {
-      transform: translateX(-420px);
-      transition: transform 0.3s ease;
+      left: -100vw;
+      transition: left 0.3s ease;
     }
 
     .editor-overlay:not(.hidden) {
-      transform: translateX(0);
-      transition: transform 0.3s ease;
+      left: 20px;
+      transition: left 0.3s ease;
     }
 
     /* Show/hide button when editor is hidden */
@@ -159,10 +187,10 @@
       background: rgba(0, 122, 204, 0.9);
       color: white;
       border: none;
-      padding: 10px 15px;
+      padding: 16px 24px;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 22px;
       z-index: 15;
       display: none;
       backdrop-filter: blur(10px);
@@ -188,8 +216,8 @@
       }
       
       .btn {
-        padding: 5px 8px;
-        font-size: 11px;
+        padding: 8px 13px;
+        font-size: 18px;
       }
     }
 
@@ -221,7 +249,7 @@
     </div>
     
     <div class="toolbar">
-      <button class="btn" id="runBtn" title="Ctrl+Enter">▶ Run</button>
+      <button class="btn" id="runBtn" title="Ctrl+Enter or Shift+Enter">▶ Run</button>
       <button class="btn" id="sendBtn" title="Send to display">📤 Send</button>
       <button class="btn danger" id="clearBtn" title="Clear canvas">🗑 Clear</button>
       <span id="connectionStatus" class="status-bar">Connecting...</span>
@@ -229,7 +257,7 @@
     
     <div class="editor-container">
       <textarea id="codeEditor">// Welcome to Hydra!
-// Try modifying this code and press "Run" or Ctrl+Enter
+// Try modifying this code and press "Run", Ctrl+Enter, or Shift+Enter
 // Press Ctrl+H to hide/show this editor
 
 osc(20, 0.1, 0.8)
@@ -262,7 +290,7 @@ osc(20, 0.1, 0.8)
       console.log('Initializing CodeMirror editor...');
       editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
         mode: 'javascript',
-        theme: 'monokai',
+        theme: 'tomorrow-night-eighties',
         lineNumbers: true,
         autoCloseBrackets: true,
         matchBrackets: true,
@@ -271,6 +299,7 @@ osc(20, 0.1, 0.8)
         extraKeys: {
           'Ctrl-Enter': runCode,
           'Cmd-Enter': runCode,
+          'Shift-Enter': runCode,
           'Ctrl-H': toggleEditor,
           'Cmd-H': toggleEditor
         }
@@ -433,6 +462,52 @@ osc(20, 0.1, 0.8)
         editor.refresh();
       }
     });
+
+    // Resize handle functionality
+    let isResizing = false;
+    const resizeHandle = document.getElementById('resizeHandle');
+    const overlay = document.getElementById('editorOverlay');
+
+    resizeHandle.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      document.addEventListener('mousemove', handleResize);
+      document.addEventListener('mouseup', stopResize);
+      e.preventDefault();
+    });
+
+    function handleResize(e) {
+      if (!isResizing) return;
+      
+      const rect = overlay.getBoundingClientRect();
+      const newWidth = e.clientX - rect.left;
+      const newHeight = e.clientY - rect.top;
+      
+      // Set minimum and maximum sizes
+      const minWidth = 300;
+      const maxWidth = window.innerWidth - 40;
+      const minHeight = 250;
+      const maxHeight = window.innerHeight - 40;
+      
+      if (newWidth >= minWidth && newWidth <= maxWidth) {
+        overlay.style.width = newWidth + 'px';
+      }
+      
+      if (newHeight >= minHeight && newHeight <= maxHeight) {
+        overlay.style.height = newHeight + 'px';
+        overlay.style.maxHeight = 'none'; // Remove max-height constraint when manually resizing
+      }
+      
+      // Refresh CodeMirror to adjust to new size
+      if (editor) {
+        setTimeout(() => editor.refresh(), 10);
+      }
+    }
+
+    function stopResize() {
+      isResizing = false;
+      document.removeEventListener('mousemove', handleResize);
+      document.removeEventListener('mouseup', stopResize);
+    }
 
     // Initialize everything when page loads
     window.addEventListener('load', () => {
