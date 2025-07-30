@@ -12,48 +12,62 @@
     body, html {
       margin: 0;
       padding: 0;
-      background-color: #1e1e1e;
+      background-color: black;
       color: white;
       font-family: 'Courier New', monospace;
       height: 100vh;
       overflow: hidden;
     }
 
-    .container {
-      display: flex;
+    /* Full-screen preview canvas */
+    #previewCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
       height: 100vh;
+      background: black;
+      z-index: 1;
     }
 
-    .editor-panel {
-      width: 50%;
+    /* Floating editor overlay */
+    .editor-overlay {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 400px;
+      max-height: calc(100vh - 40px);
+      background: rgba(30, 30, 30, 0.95);
+      border: 1px solid #444;
+      border-radius: 8px;
+      z-index: 10;
       display: flex;
       flex-direction: column;
-      border-right: 1px solid #444;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
-    .preview-panel {
-      width: 50%;
-      display: flex;
-      flex-direction: column;
-    }
-
+    /* Top toolbar */
     .toolbar {
-      background: #2d2d2d;
+      background: rgba(45, 45, 45, 0.9);
       padding: 10px;
       border-bottom: 1px solid #444;
       display: flex;
       gap: 10px;
       align-items: center;
+      flex-wrap: wrap;
+      border-radius: 8px 8px 0 0;
     }
 
     .btn {
       background: #007acc;
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 12px;
+      transition: background 0.2s;
     }
 
     .btn:hover {
@@ -68,28 +82,42 @@
       background: #b52d3a;
     }
 
+    .btn.toggle {
+      background: #28a745;
+    }
+
+    .btn.toggle:hover {
+      background: #218838;
+    }
+
+    /* Code editor container */
+    .editor-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 200px;
+      max-height: 60vh;
+    }
+
     .CodeMirror {
       flex: 1;
-      font-size: 14px;
+      font-size: 13px;
       height: auto;
+      border-radius: 0;
     }
 
     .CodeMirror-lines {
-      padding: 20px 0;
+      padding: 15px 0;
     }
 
-    #previewCanvas {
-      width: 100%;
-      height: 100%;
-      background: black;
-    }
-
+    /* Status bar */
     .status-bar {
-      background: #2d2d2d;
+      background: rgba(45, 45, 45, 0.9);
       padding: 5px 10px;
-      font-size: 12px;
+      font-size: 11px;
       border-top: 1px solid #444;
       color: #888;
+      border-radius: 0 0 8px 8px;
     }
 
     .status-connected {
@@ -100,40 +128,109 @@
       color: #dc3545;
     }
 
+    /* Panel title */
     .panel-title {
-      background: #1e1e1e;
-      padding: 8px 12px;
-      font-size: 12px;
+      background: rgba(30, 30, 30, 0.9);
+      padding: 6px 12px;
+      font-size: 11px;
       color: #ccc;
       border-bottom: 1px solid #444;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
+    /* Hide/show toggle */
+    .editor-overlay.hidden {
+      transform: translateX(-420px);
+      transition: transform 0.3s ease;
+    }
+
+    .editor-overlay:not(.hidden) {
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    /* Show/hide button when editor is hidden */
+    .show-editor-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 122, 204, 0.9);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      z-index: 15;
+      display: none;
+      backdrop-filter: blur(10px);
+    }
+
+    .show-editor-btn:hover {
+      background: rgba(0, 90, 158, 0.9);
+    }
+
+    /* Mobile responsiveness */
     @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
+      .editor-overlay {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        max-height: calc(100vh - 20px);
       }
       
-      .editor-panel,
-      .preview-panel {
-        width: 100%;
-        height: 50vh;
+      .toolbar {
+        padding: 8px;
+        gap: 5px;
       }
+      
+      .btn {
+        padding: 5px 8px;
+        font-size: 11px;
+      }
+    }
+
+    /* Resize handle */
+    .resize-handle {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(-45deg, transparent 30%, #666 30%, #666 40%, transparent 40%, transparent 60%, #666 60%, #666 70%, transparent 70%);
+      cursor: nw-resize;
+      border-radius: 0 0 8px 0;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Editor Panel -->
-    <div class="editor-panel">
-      <div class="panel-title">Hydra Code Editor</div>
-      <div class="toolbar">
-        <button class="btn" id="runBtn">Run (Ctrl+Enter)</button>
-        <button class="btn" id="sendBtn">Send to Display</button>
-        <button class="btn danger" id="clearBtn">Clear</button>
-        <span id="connectionStatus" class="status-bar">Connecting...</span>
-      </div>
+  <!-- Full-screen preview canvas -->
+  <canvas id="previewCanvas"></canvas>
+
+  <!-- Show editor button (hidden by default) -->
+  <button class="show-editor-btn" id="showEditorBtn">Show Editor</button>
+
+  <!-- Floating editor overlay -->
+  <div class="editor-overlay" id="editorOverlay">
+    <div class="panel-title">
+      Hydra Code Editor
+      <button class="btn toggle" id="hideEditorBtn" title="Hide Editor (Ctrl+H)">Hide</button>
+    </div>
+    
+    <div class="toolbar">
+      <button class="btn" id="runBtn" title="Ctrl+Enter">▶ Run</button>
+      <button class="btn" id="sendBtn" title="Send to display">📤 Send</button>
+      <button class="btn danger" id="clearBtn" title="Clear canvas">🗑 Clear</button>
+      <span id="connectionStatus" class="status-bar">Connecting...</span>
+    </div>
+    
+    <div class="editor-container">
       <textarea id="codeEditor">// Welcome to Hydra!
 // Try modifying this code and press "Run" or Ctrl+Enter
+// Press Ctrl+H to hide/show this editor
 
 osc(20, 0.1, 0.8)
   .color(1.5, 0.5, 0.8)
@@ -144,14 +241,10 @@ osc(20, 0.1, 0.8)
 // osc(40, 0.1, 1.2).out()
 // noise(3).out()
 // gradient(1).out()</textarea>
-      <div class="status-bar" id="statusBar">Ready</div>
     </div>
-
-    <!-- Preview Panel -->
-    <div class="preview-panel">
-      <div class="panel-title">Preview</div>
-      <canvas id="previewCanvas"></canvas>
-    </div>
+    
+    <div class="status-bar" id="statusBar">Ready</div>
+    <div class="resize-handle" id="resizeHandle"></div>
   </div>
 
   <!-- CodeMirror JS -->
@@ -162,6 +255,7 @@ osc(20, 0.1, 0.8)
     let hydra;
     let socket;
     let editor;
+    let editorVisible = true;
 
     // Initialize CodeMirror
     function initEditor() {
@@ -176,7 +270,9 @@ osc(20, 0.1, 0.8)
         tabSize: 2,
         extraKeys: {
           'Ctrl-Enter': runCode,
-          'Cmd-Enter': runCode
+          'Cmd-Enter': runCode,
+          'Ctrl-H': toggleEditor,
+          'Cmd-H': toggleEditor
         }
       });
       console.log('CodeMirror editor initialized');
@@ -188,8 +284,8 @@ osc(20, 0.1, 0.8)
       const canvas = document.getElementById('previewCanvas');
       hydra = new Hydra({
         canvas: canvas,
-        width: canvas.offsetWidth,
-        height: canvas.offsetHeight,
+        width: window.innerWidth,
+        height: window.innerHeight,
         makeGlobal: true
       });
       console.log('Hydra initialized');
@@ -238,6 +334,27 @@ osc(20, 0.1, 0.8)
         console.error('Socket error:', error);
         updateStatus('Socket error: ' + error, 'error');
       });
+    }
+
+    // Toggle editor visibility
+    function toggleEditor() {
+      const overlay = document.getElementById('editorOverlay');
+      const showBtn = document.getElementById('showEditorBtn');
+      
+      editorVisible = !editorVisible;
+      
+      if (editorVisible) {
+        overlay.classList.remove('hidden');
+        showBtn.style.display = 'none';
+      } else {
+        overlay.classList.add('hidden');
+        showBtn.style.display = 'block';
+      }
+      
+      // Refresh editor layout when shown
+      if (editorVisible && editor) {
+        setTimeout(() => editor.refresh(), 300);
+      }
     }
 
     // Run code in preview
@@ -296,12 +413,21 @@ osc(20, 0.1, 0.8)
     document.getElementById('runBtn').addEventListener('click', runCode);
     document.getElementById('sendBtn').addEventListener('click', sendToDisplay);
     document.getElementById('clearBtn').addEventListener('click', clearCanvas);
+    document.getElementById('hideEditorBtn').addEventListener('click', toggleEditor);
+    document.getElementById('showEditorBtn').addEventListener('click', toggleEditor);
+
+    // Global keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
+        e.preventDefault();
+        toggleEditor();
+      }
+    });
 
     // Handle window resize
     window.addEventListener('resize', () => {
       if (hydra) {
-        const canvas = document.getElementById('previewCanvas');
-        hydra.setResolution(canvas.offsetWidth, canvas.offsetHeight);
+        hydra.setResolution(window.innerWidth, window.innerHeight);
       }
       if (editor) {
         editor.refresh();
