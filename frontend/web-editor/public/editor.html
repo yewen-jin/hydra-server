@@ -35,7 +35,8 @@
       position: fixed;
       top: 20px;
       left: 20px;
-      width: 400px;
+      right: 20px;
+      width: auto;
       max-height: calc(100vh - 40px);
       background: transparent;
       border: 1px solid rgba(68, 68, 68, 0.5);
@@ -64,7 +65,7 @@
       color: white;
       border: none;
       padding: 10px 19px;
-      border-radius: 4px;
+      border-radius: 20px;
       cursor: pointer;
       font-size: 19px;
       transition: background 0.2s;
@@ -97,7 +98,6 @@
       display: flex;
       flex-direction: column;
       min-height: 200px;
-      max-height: 60vh;
       margin: 5px;
     }
 
@@ -136,10 +136,10 @@
 
     /* Status bar */
     .status-bar {
-      background: rgba(45, 45, 45, 0.9);
+      background: rgba(84, 84, 84, 0.3);
       padding: 8px 16px;
       font-size: 18px;
-      border-top: 1px solid rgba(68, 68, 68, 0.5);
+      border-top: 1px solid rgba(68, 68, 68, 0.8);
       color: #ccc;
       border-radius: 4px;
       backdrop-filter: blur(10px);
@@ -156,7 +156,7 @@
 
     /* Panel title */
     .panel-title {
-      background: rgba(30, 30, 30, 0.9);
+      background: rgba(30, 30, 30, 0.2);
       padding: 6px 12px;
       font-size: 18px;
       color: #fff;
@@ -170,13 +170,13 @@
 
     /* Hide/show toggle */
     .editor-overlay.hidden {
-      left: -100vw;
-      transition: left 0.3s ease;
+      transform: translateX(-120%);
+      transition: transform 0.3s ease;
     }
 
     .editor-overlay:not(.hidden) {
-      left: 20px;
-      transition: left 0.3s ease;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
     }
 
     /* Show/hide button when editor is hidden */
@@ -188,7 +188,7 @@
       color: white;
       border: none;
       padding: 16px 24px;
-      border-radius: 8px;
+      border-radius: 20px;
       cursor: pointer;
       font-size: 22px;
       z-index: 15;
@@ -250,7 +250,7 @@
     
     <div class="toolbar">
       <button class="btn" id="runBtn" title="Ctrl+Enter or Shift+Enter">▶ Run</button>
-      <button class="btn" id="sendBtn" title="Send to display">📤 Send</button>
+      <button class="btn" id="sendBtn" title="Send to display (Shift+Ctrl+Enter)">📤 Send</button>
       <button class="btn danger" id="clearBtn" title="Clear canvas">🗑 Clear</button>
       <span id="connectionStatus" class="status-bar">Connecting...</span>
     </div>
@@ -299,7 +299,8 @@ osc(20, 0.1, 0.8)
         extraKeys: {
           'Ctrl-Enter': runCode,
           'Cmd-Enter': runCode,
-          'Shift-Enter': runCode,
+          'Shift-Ctrl-Enter': sendToDisplay,
+          'Shift-Cmd-Enter': sendToDisplay,
           'Ctrl-H': toggleEditor,
           'Cmd-H': toggleEditor
         }
